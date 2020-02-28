@@ -1936,6 +1936,9 @@ __webpack_require__.r(__webpack_exports__);
   mounted: function mounted() {
     var _this = this;
 
+    Echo["private"]("messages.".concat(this.user.id)).listen('NewMessege', function (e) {
+      _this.handleIncoming(e.message);
+    });
     axios.get('/contacts').then(function (response) {
       console.log(response.data);
       _this.contacts = response.data;
@@ -1952,6 +1955,14 @@ __webpack_require__.r(__webpack_exports__);
     },
     saveNewMessage: function saveNewMessage(text) {
       this.messages.push(text);
+    },
+    handleIncoming: function handleIncoming(message) {
+      if (this.selectedContact && message.from == this.selectedContact.id) {
+        this.saveNewMessage(message);
+        return;
+      }
+
+      alert(message.text);
     }
   },
   components: {

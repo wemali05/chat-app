@@ -24,6 +24,11 @@ import  ContactsList from './ContactsList';
             }
         },
         mounted() {
+            Echo.private(`messages.${this.user.id}`)
+            .listen('NewMessege', (e) => {
+                this.handleIncoming(e.message);
+            })
+
             axios.get('/contacts')
             .then((response) => {
                 console.log(response.data);
@@ -42,6 +47,15 @@ import  ContactsList from './ContactsList';
 
            saveNewMessage(text){
                this.messages.push(text);
+           },
+
+           handleIncoming(message){
+               if(this.selectedContact && message.from == this.selectedContact.id) {
+                   this.saveNewMessage(message);
+                   return;
+               }
+
+               alert(message.text);
            }
         },
 

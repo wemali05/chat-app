@@ -1949,6 +1949,9 @@ __webpack_require__.r(__webpack_exports__);
         _this2.messages = response.data;
         _this2.selectedContact = contact;
       });
+    },
+    saveNewMessage: function saveNewMessage(text) {
+      this.messages.push(text);
     }
   },
   components: {
@@ -2040,7 +2043,18 @@ __webpack_require__.r(__webpack_exports__);
   },
   methods: {
     sendMessege: function sendMessege(text) {
-      console.log(text);
+      var _this = this;
+
+      if (!this.contact) {
+        return;
+      }
+
+      axios.post('/conversation/send', {
+        contact_id: this.contact.id,
+        text: text
+      }).then(function (response) {
+        _this.$emit('new', response.data);
+      });
     }
   },
   components: {
@@ -2073,8 +2087,10 @@ __webpack_require__.r(__webpack_exports__);
     };
   },
   methods: {
-    send: function send() {
-      if (this.message = '') {
+    send: function send(e) {
+      e.preventDefault();
+
+      if (this.message == '') {
         return;
       }
 
@@ -2115,6 +2131,23 @@ __webpack_require__.r(__webpack_exports__);
     messages: {
       type: Array,
       required: true
+    }
+  },
+  methods: {
+    scrollToBottom: function scrollToBottom() {
+      var _this = this;
+
+      setTimeout(function () {
+        _this.$refs.feed.scrollTop = _this.$refs.feed.scrollHeight - _this.$refs.feed.clientHeight;
+      }, 50);
+    }
+  },
+  watch: {
+    contact: function contact(_contact) {
+      this.scrollToBottom();
+    },
+    messages: function messages(_messages) {
+      this.scrollToBottom();
     }
   }
 });
@@ -38337,7 +38370,8 @@ var render = function() {
     { staticClass: "chat-app" },
     [
       _c("Converstion", {
-        attrs: { contact: _vm.selectedContact, messages: _vm.messages }
+        attrs: { contact: _vm.selectedContact, messages: _vm.messages },
+        on: { new: _vm.saveNewMessage }
       }),
       _vm._v(" "),
       _c("ContactsList", {
@@ -38478,7 +38512,7 @@ var render = function() {
       attrs: { placeholder: "messege..." },
       domProps: { value: _vm.message },
       on: {
-        keydoen: function($event) {
+        keydown: function($event) {
           if (
             !$event.type.indexOf("key") &&
             _vm._k($event.keyCode, "enter", 13, $event.key, "Enter")
@@ -38519,7 +38553,7 @@ var render = function() {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
-  return _c("div", { staticClass: "feed" }, [
+  return _c("div", { ref: "feed", staticClass: "feed" }, [
     _vm.contact
       ? _c(
           "ul",

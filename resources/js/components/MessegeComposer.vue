@@ -1,6 +1,6 @@
 <template>
     <div class="composer">
-        <textarea v-model="message" @keydoen.enter="send" placeholder="messege..."></textarea>
+        <textarea v-model="message" @keydown.enter="send" placeholder="messege..."></textarea>
     </div>
 </template>
 
@@ -12,8 +12,10 @@ export default {
         }
     },
     methods: {
-        send(){
-            if( this.message = ''){
+        send(e){
+            e.preventDefault();
+            
+            if( this.message == ''){
                 return;
             }
 

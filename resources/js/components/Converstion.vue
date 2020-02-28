@@ -1,7 +1,7 @@
 <template>
     <div class="conversation">
         <h1>{{ contact ? contact.name : 'Select Contact'}}</h1>
-        <MessegeFeed :contact="contact" :messeges="messeges" />
+        <MessegeFeed :contact="contact" :messages="messages" />
         <MessegeComposer @send="sendMessege" />
     </div>
 </template>
@@ -16,7 +16,7 @@ export default {
             type: Object,
             default: null
         },
-        messeges: {
+        messages: {
             type: Array,
             default: []
         }
@@ -31,3 +31,19 @@ export default {
     components: { MessegeFeed, MessegeComposer}
 }
 </script>
+
+<style scoped lang="scss">
+    .conversation{
+        flex: 5;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+
+        h1 {
+            font-size: 20px;
+            padding: 10px;
+            margin: 0;
+            border-bottom: 1px dashed lightgray;
+        }
+    }
+</style>

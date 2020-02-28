@@ -45,8 +45,8 @@ import  ContactsList from './ContactsList';
             })
            },
 
-           saveNewMessage(text){
-               this.messages.push(text);
+           saveNewMessage(message){
+               this.messages.push(message);
            },
 
            handleIncoming(message){

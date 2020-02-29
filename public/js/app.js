@@ -1948,6 +1948,7 @@ __webpack_require__.r(__webpack_exports__);
     startConversationWith: function startConversationWith(contact) {
       var _this2 = this;
 
+      this.updateUnreadCount(contact, true);
       axios.get("/conversation/".concat(contact.id)).then(function (response) {
         _this2.messages = response.data;
         _this2.selectedContact = contact;
@@ -1962,7 +1963,17 @@ __webpack_require__.r(__webpack_exports__);
         return;
       }
 
-      alert(message.text);
+      this.updateUnreadCount(message.from_contact, false);
+    },
+    updateUnreadCount: function updateUnreadCount(contact, reset) {
+      this.contacts = this.contacts.map(function (single) {
+        if (single.id != contact.id) {
+          return single;
+        }
+
+        if (reset) single.unread = 0;else single.unread += 1;
+        return single;
+      });
     }
   },
   components: {
@@ -1998,6 +2009,7 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   props: {
     contacts: {
@@ -2007,13 +2019,26 @@ __webpack_require__.r(__webpack_exports__);
   },
   data: function data() {
     return {
-      selected: 0
+      selected: this.contacts.length ? this.contacts[0] : null
     };
   },
   methods: {
-    selectContact: function selectContact(index, contact) {
-      this.selected = index;
+    selectContact: function selectContact(contact) {
+      this.selected = contact;
       this.$emit('selected', contact);
+    }
+  },
+  computed: {
+    sortedContacts: function sortedContacts() {
+      var _this = this;
+
+      return _.sortBy(this.contacts, [function (contact) {
+        if (contact == _this.selected) {
+          return Infinity;
+        }
+
+        return contact.unread;
+      }]).reverse();
     }
   }
 });
@@ -8693,7 +8718,7 @@ exports = module.exports = __webpack_require__(/*! ../../../node_modules/css-loa
 
 
 // module
-exports.push([module.i, ".contact-list[data-v-484f3208] {\n  flex: 2;\n  max-height: 600px;\n  overflow: scroll;\n  border-left: 1px solid #a6a6a6;\n}\n.contact-list ul[data-v-484f3208] {\n  list-style-type: none;\n  padding-left: 0;\n}\n.contact-list ul li[data-v-484f3208] {\n  display: flex;\n  padding: 2px;\n  border-bottom: 1px solid #aaaaaa;\n  height: 80px;\n  position: relative;\n  cursor: pointer;\n}\n.contact-list ul li.selected[data-v-484f3208] {\n  background: #dfdfdf;\n}\n.contact-list ul li .avatar[data-v-484f3208] {\n  flex: 1;\n  display: flex;\n  align-items: center;\n}\n.contact-list ul li .avatar img[data-v-484f3208] {\n  width: 35px;\n  border-radius: 50%;\n  margin: 0 auto;\n}\n.contact-list ul li .contact[data-v-484f3208] {\n  display: flex;\n  flex: 3;\n  font-size: 10px;\n  overflow: hidden;\n  flex-direction: column;\n  justify-content: center;\n}\n.contact-list ul li .contact p[data-v-484f3208] {\n  margin: 0;\n}\n.contact-list ul li .contact p.name[data-v-484f3208] {\n  font-weight: bold;\n}", ""]);
+exports.push([module.i, ".contact-list[data-v-484f3208] {\n  flex: 2;\n  max-height: 600px;\n  overflow: scroll;\n  border-left: 1px solid #a6a6a6;\n}\n.contact-list ul[data-v-484f3208] {\n  list-style-type: none;\n  padding-left: 0;\n}\n.contact-list ul li[data-v-484f3208] {\n  display: flex;\n  padding: 2px;\n  border-bottom: 1px solid #aaaaaa;\n  height: 80px;\n  position: relative;\n  cursor: pointer;\n}\n.contact-list ul li.selected[data-v-484f3208] {\n  background: #dfdfdf;\n}\n.contact-list ul li span.unread[data-v-484f3208] {\n  background: green;\n  color: white;\n  position: absolute;\n  right: 11px;\n  top: 20px;\n  display: flex;\n  justify-content: center;\n  font-weight: 700;\n  min-width: 20px;\n  line-height: 20px;\n  font-size: 12px;\n  padding: 0 4px;\n  border-radius: 3px;\n}\n.contact-list ul li .avatar[data-v-484f3208] {\n  flex: 1;\n  display: flex;\n  align-items: center;\n}\n.contact-list ul li .avatar img[data-v-484f3208] {\n  width: 35px;\n  border-radius: 50%;\n  margin: 0 auto;\n}\n.contact-list ul li .contact[data-v-484f3208] {\n  display: flex;\n  flex: 3;\n  font-size: 10px;\n  overflow: hidden;\n  flex-direction: column;\n  justify-content: center;\n}\n.contact-list ul li .contact p[data-v-484f3208] {\n  margin: 0;\n}\n.contact-list ul li .contact p.name[data-v-484f3208] {\n  font-weight: bold;\n}", ""]);
 
 // exports
 
@@ -48324,15 +48349,15 @@ var render = function() {
   return _c("div", { staticClass: "contact-list" }, [
     _c(
       "ul",
-      _vm._l(_vm.contacts, function(contact, index) {
+      _vm._l(_vm.sortedContacts, function(contact) {
         return _c(
           "li",
           {
             key: contact.id,
-            class: { selected: index == _vm.selected },
+            class: { selected: contact == _vm.selected },
             on: {
               click: function($event) {
-                return _vm.selectContact(index, contact)
+                return _vm.selectContact(contact)
               }
             }
           },
@@ -48347,7 +48372,13 @@ var render = function() {
               _c("p", { staticClass: "name" }, [_vm._v(_vm._s(contact.name))]),
               _vm._v(" "),
               _c("p", { staticClass: "email" }, [_vm._v(_vm._s(contact.email))])
-            ])
+            ]),
+            _vm._v(" "),
+            contact.unread
+              ? _c("span", { staticClass: "unread" }, [
+                  _vm._v(_vm._s(contact.unread))
+                ])
+              : _vm._e()
           ]
         )
       }),
